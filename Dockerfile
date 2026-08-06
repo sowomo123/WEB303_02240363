@@ -1,10 +1,11 @@
-# Stage 1 - Build the application
+# ---------- Build Stage ----------
 FROM golang:1.26 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o hello-service
-# Stage 2 - Create a lightweight runtime image
+# ---------- Runtime Stage ----------
 FROM debian:bookworm-slim
 WORKDIR /app
 COPY --from=builder /app/hello-service .
+EXPOSE 8081
 CMD ["./hello-service"]
