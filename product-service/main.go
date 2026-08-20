@@ -4,6 +4,9 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
+	"strconv"
+	"time"
 
 	pb "ecommerce-microservices/proto"
 
@@ -45,6 +48,21 @@ func (s *productServer) GetProduct(
 	req *pb.GetProductRequest,
 ) (*pb.Product, error) {
 
+	if delay, err := time.ParseDuration(os.Getenv("PRODUCT_DELAY")); err == nil && delay > 0 {
+		log.Printf("delaying GetProduct by %s", delay)
+		timer := time.NewTimer(delay)
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+		case <-ctx.Done():
+			return nil, status.Error(codes.DeadlineExceeded, "product lookup timed out")
+		}
+	}
+
+	if fail, _ := strconv.ParseBool(os.Getenv("PRODUCT_FAIL")); fail {
+		return nil, status.Error(codes.Unavailable, "product service is temporarily unavailable")
+	}
+
 	product, exists := products[req.GetProductId()]
 
 	if !exists {
@@ -76,6 +94,7 @@ func main() {
 	reflection.Register(grpcServer)
 
 	log.Println("Product Service running on port 50051")
+	log.Println("Demo controls: PRODUCT_DELAY=2s PRODUCT_FAIL=true")
 
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
