@@ -1,0 +1,367 @@
+package main
+
+import (
+	"context"
+	"os"
+	"testing"
+	"time"
+
+	pb "ecommerce-microservices/proto"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+// ============================================================
+// TEST 1: Successful retrieval of P001
+// ============================================================
+
+func TestGetProduct_P001(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P001",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+
+	if product.GetProductId() != "P001" {
+		t.Errorf(
+			"expected product ID P001, got %s",
+			product.GetProductId(),
+		)
+	}
+
+	if product.GetName() != "Laptop" {
+		t.Errorf(
+			"expected product name Laptop, got %s",
+			product.GetName(),
+		)
+	}
+
+	if product.GetPrice() != 75000 {
+		t.Errorf(
+			"expected price 75000, got %v",
+			product.GetPrice(),
+		)
+	}
+}
+
+// ============================================================
+// TEST 2: Successful retrieval of P002
+// ============================================================
+
+func TestGetProduct_P002(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P002",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+
+	if product.GetProductId() != "P002" {
+		t.Errorf(
+			"expected product ID P002, got %s",
+			product.GetProductId(),
+		)
+	}
+
+	if product.GetName() != "Mechanical Keyboard" {
+		t.Errorf(
+			"expected product name Mechanical Keyboard, got %s",
+			product.GetName(),
+		)
+	}
+
+	if product.GetPrice() != 4500 {
+		t.Errorf(
+			"expected price 4500, got %v",
+			product.GetPrice(),
+		)
+	}
+}
+
+// ============================================================
+// TEST 3: Successful retrieval of P003
+// ============================================================
+
+func TestGetProduct_P003(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P003",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+
+	if product.GetProductId() != "P003" {
+		t.Errorf(
+			"expected product ID P003, got %s",
+			product.GetProductId(),
+		)
+	}
+
+	if product.GetName() != "Wireless Mouse" {
+		t.Errorf(
+			"expected product name Wireless Mouse, got %s",
+			product.GetName(),
+		)
+	}
+
+	if product.GetPrice() != 1800 {
+		t.Errorf(
+			"expected price 1800, got %v",
+			product.GetPrice(),
+		)
+	}
+}
+
+// ============================================================
+// TEST 4: Successful retrieval of P004
+// ============================================================
+
+func TestGetProduct_P004(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P004",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+
+	if product.GetProductId() != "P004" {
+		t.Errorf(
+			"expected product ID P004, got %s",
+			product.GetProductId(),
+		)
+	}
+
+	if product.GetName() != "Monitor" {
+		t.Errorf(
+			"expected product name Monitor, got %s",
+			product.GetName(),
+		)
+	}
+
+	if product.GetPrice() != 25000 {
+		t.Errorf(
+			"expected price 25000, got %v",
+			product.GetPrice(),
+		)
+	}
+}
+
+// ============================================================
+// TEST 5: Non-existing product
+// ============================================================
+
+func TestGetProduct_NotFound(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P999",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if product != nil {
+		t.Errorf("expected nil product, got %v", product)
+	}
+
+	if err == nil {
+		t.Fatal("expected NotFound error, got nil")
+	}
+
+	if status.Code(err) != codes.NotFound {
+		t.Errorf(
+			"expected NotFound, got %v",
+			status.Code(err),
+		)
+	}
+}
+
+// ============================================================
+// TEST 6: Empty product ID
+// ============================================================
+
+func TestGetProduct_EmptyID(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if product != nil {
+		t.Errorf("expected nil product, got %v", product)
+	}
+
+	if err == nil {
+		t.Fatal("expected error for empty Product ID, got nil")
+	}
+
+	if status.Code(err) != codes.NotFound {
+		t.Errorf(
+			"expected NotFound for empty ID, got %v",
+			status.Code(err),
+		)
+	}
+}
+
+// ============================================================
+// TEST 7: Invalid product ID
+// ============================================================
+
+func TestGetProduct_InvalidID(t *testing.T) {
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "ABC",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if product != nil {
+		t.Errorf("expected nil product, got %v", product)
+	}
+
+	if err == nil {
+		t.Fatal("expected error for invalid Product ID, got nil")
+	}
+
+	if status.Code(err) != codes.NotFound {
+		t.Errorf(
+			"expected NotFound for invalid ID, got %v",
+			status.Code(err),
+		)
+	}
+}
+
+// ============================================================
+// TEST 8: Product service unavailable
+// ============================================================
+
+func TestGetProduct_ServiceUnavailable(t *testing.T) {
+
+	// Enable failure mode
+	os.Setenv("PRODUCT_FAIL", "true")
+
+	// Always remove the variable after the test
+	defer os.Unsetenv("PRODUCT_FAIL")
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P001",
+	}
+
+	product, err := server.GetProduct(
+		context.Background(),
+		req,
+	)
+
+	if product != nil {
+		t.Errorf("expected nil product, got %v", product)
+	}
+
+	if err == nil {
+		t.Fatal("expected Unavailable error, got nil")
+	}
+
+	if status.Code(err) != codes.Unavailable {
+		t.Errorf(
+			"expected Unavailable, got %v",
+			status.Code(err),
+		)
+	}
+}
+
+// ============================================================
+// TEST 9: Timeout
+// ============================================================
+
+func TestGetProduct_Timeout(t *testing.T) {
+
+	// Make Product Service delay for 2 seconds
+	os.Setenv("PRODUCT_DELAY", "2s")
+
+	// Remove delay after test
+	defer os.Unsetenv("PRODUCT_DELAY")
+
+	server := &productServer{}
+
+	req := &pb.GetProductRequest{
+		ProductId: "P001",
+	}
+
+	// Request timeout is only 100 milliseconds
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		100*time.Millisecond,
+	)
+
+	defer cancel()
+
+	product, err := server.GetProduct(ctx, req)
+
+	if product != nil {
+		t.Errorf("expected nil product, got %v", product)
+	}
+
+	if err == nil {
+		t.Fatal("expected timeout error, got nil")
+	}
+
+	if status.Code(err) != codes.DeadlineExceeded {
+		t.Errorf(
+			"expected DeadlineExceeded, got %v",
+			status.Code(err),
+		)
+	}
+}

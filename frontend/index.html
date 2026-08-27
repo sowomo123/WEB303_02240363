@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonam Mart | Product catalog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="Mercato home"><span class="brand-mark">M</span>Sonam Mart </a>
+        <nav aria-label="Main navigation"><a class="active" href="#catalog">Catalog</a><a href="#orders">Orders</a><a
+                href="#account">Account</a></nav>
+        <button class="icon-button" type="button" aria-label="Shopping bag"><span class="bag-icon">▢</span><span
+                class="bag-count">2</span></button>
+    </header>
+
+    <main id="catalog" class="page-shell">
+        <section class="intro">
+            <div>
+                <p class="eyebrow">CURATED GOODS / 2024</p>
+                <h1>Find something<br><em>worth keeping.</em></h1>
+            </div>
+            <p class="intro-copy">Explore considered objects for everyday rituals, sourced from makers who care about
+                the details.</p>
+        </section>
+
+        <section class="search-panel" aria-label="Product search">
+            <div class="search-heading"><span class="search-dot"></span><span>Search the catalog</span><span
+                    class="search-note">Try P001</span></div>
+            <div class="search-box"><label for="productId">Product ID</label>
+                <div class="input-wrap"><input type="text" id="productId" placeholder="Enter a product ID"
+                        autocomplete="off"><button id="searchButton" type="button" onclick="getProduct()">Search <span
+                            aria-hidden="true">↗</span></button></div>
+            </div>
+            <div class="quick-links"><span>Popular right now</span><button type="button"
+                    data-product-id="P001">P001</button><button type="button"
+                    data-product-id="P002">P002</button><button type="button" data-product-id="P003">P003</button></div>
+        </section>
+
+        <div id="message" role="status" aria-live="polite"></div>
+
+        <section id="productResult" class="product-card hidden" aria-live="polite">
+            <div id="productImage" class="product-image">
+                <div class="image-glow"></div><span class="image-label">M / EDITION 04</span>
+                <div class="product-object" aria-hidden="true"></div>
+            </div>
+            <div class="product-info">
+                <div class="result-topline"><span id="resultId"></span><span class="stock"><i></i> In stock</span></div>
+                <p class="category">THE DAILY OBJECT</p>
+                <h2 id="resultName"></h2>
+                <div class="rating"><span>★★★★★</span> <small>4.9 / 5 · 28 reviews</small></div>
+                <p class="description">A beautifully made essential with a quiet presence. Designed to be used often and
+                    kept for a long time.</p>
+                <div class="purchase-row"><strong id="resultPrice"></strong><button class="add-button" type="button"
+                        onclick="showAddedMessage()">Add to bag <span>+</span></button></div>
+                <div class="shipping"><span>↗</span><span>Complimentary shipping<br><small>Arrives in 2–4 business
+                            days</small></span></div>
+            </div>
+        </section>
+
+        <section class="catalog-footer"><span>01</span>
+            <div class="rule"></div><span>Small batch, thoughtfully selected.</span><span class="footer-arrow">↓</span>
+        </section>
+    </main>
+
+    <script src="/script.js"></script>
+
+</body>
+
+</html>
