@@ -1,12 +1,16 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"os"
-	"sync"
-	"time"
+    "bytes"
+    "context"
+    "encoding/json"
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+    "os"
+    "sync"
+    "time"
 
 	pb "ecommerce-microservices/proto"
 
@@ -17,12 +21,26 @@ import (
 )
 
 const (
-	requestTimeout = 3 * time.Second
-	maxRetries     = 2
-	failureLimit   = 3
-	openDuration   = 5 * time.Second
-)
+    requestTimeout = 3 * time.Second
+    maxRetries     = 2
+    failureLimit   = 3
+    openDuration   = 5 * time.Second
 
+discountWorkerURL = "https://ecommerce-discount-worker.02240363-cst.workers.dev/"
+)
+type DiscountRequest struct {
+    Price    float64 `json:"price"`
+    Discount float64 `json:"discount"`
+}
+
+type DiscountResponse struct {
+    Success        bool    `json:"success"`
+    OriginalPrice  float64 `json:"originalPrice"`
+    Discount       float64 `json:"discount"`
+    DiscountAmount float64 `json:"discountAmount"`
+    FinalPrice     float64 `json:"finalPrice"`
+    Error          string  `json:"error,omitempty"`
+}
 type circuitBreaker struct {
 	mu       sync.Mutex
 	failures int
@@ -48,6 +66,82 @@ func (b *circuitBreaker) allow() bool {
 	return false
 }
 
+func calculateDiscount(price float64, discount float64) (*DiscountResponse, error) {
+
+    requestData := DiscountRequest{
+        Price:    price,
+        Discount: discount,
+    }
+
+    jsonData, err := json.Marshal(requestData)
+    if err != nil {
+        return nil, fmt.Errorf("failed to create discount request: %w", err)
+    }
+
+    ctx, cancel := context.WithTimeout(
+        context.Background(),
+        10*time.Second,
+    )
+    defer cancel()
+
+    req, err := http.NewRequestWithContext(
+        ctx,
+        http.MethodPost,
+        discountWorkerURL,
+        bytes.NewBuffer(jsonData),
+    )
+
+    if err != nil {
+        return nil, fmt.Errorf("failed to create HTTP request: %w", err)
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+
+	apiKey := os.Getenv("DISCOUNT_API_KEY")
+
+	if apiKey == "" {
+		return nil, fmt.Errorf("DISCOUNT_API_KEY environment variable is not set")
+	}
+
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+
+    client := &http.Client{}
+
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("cloudflare worker unavailable: %w", err)
+    }
+
+    defer resp.Body.Close()
+
+    responseBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read worker response: %w", err)
+    }
+
+    var result DiscountResponse
+
+    err = json.Unmarshal(responseBody, &result)
+    if err != nil {
+        return nil, fmt.Errorf("invalid worker response: %w", err)
+    }
+
+    if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+        if result.Error != "" {
+            return nil, fmt.Errorf(
+                "discount calculation failed: %s",
+                result.Error,
+            )
+        }
+
+        return nil, fmt.Errorf(
+            "discount worker returned HTTP %d",
+            resp.StatusCode,
+        )
+    }
+
+    return &result, nil
+}
 func (b *circuitBreaker) recordSuccess() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -214,6 +308,48 @@ func main() {
 		)
 		fmt.Println(
 			"=========================================",
+		)
+
+		discount := 10.0
+
+		discountResult, err := calculateDiscount(
+			product.GetPrice(),
+			discount,
+		)
+
+		if err != nil {
+			log.Printf(
+				"Discount calculation failed: %v",
+				err,
+			)
+			return
+		}
+
+		fmt.Println()
+		fmt.Println("========== DISCOUNT INFORMATION ==========")
+
+		fmt.Printf(
+			"Original Price: %.2f\n",
+			discountResult.OriginalPrice,
+		)
+
+		fmt.Printf(
+			"Discount: %.2f%%\n",
+			discountResult.Discount,
+		)
+
+		fmt.Printf(
+			"Discount Amount: %.2f\n",
+			discountResult.DiscountAmount,
+		)
+
+		fmt.Printf(
+			"Final Price: %.2f\n",
+			discountResult.FinalPrice,
+		)
+
+		fmt.Println(
+			"==========================================",
 		)
 
 		return
