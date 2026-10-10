@@ -1,1 +1,10 @@
 lab1
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Go build outputs
+bin/
+dist/

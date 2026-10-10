@@ -9,11 +9,35 @@ option go_package = "ecommerce-microservices/proto";
 // =====================================================
 
 service ProductService {
+    rpc CreateProduct(CreateProductRequest) returns (Product);
     rpc GetProduct(GetProductRequest) returns (Product);
+    rpc UpdateProduct(UpdateProductRequest) returns (Product);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+}
+
+message CreateProductRequest {
+    string product_id = 1;
+    string name = 2;
+    double price = 3;
 }
 
 message GetProductRequest {
     string product_id = 1;
+}
+
+message UpdateProductRequest {
+    string product_id = 1;
+    string name = 2;
+    double price = 3;
+}
+
+message DeleteProductRequest {
+    string product_id = 1;
+}
+
+message DeleteProductResponse {
+    bool success = 1;
+    string message = 2;
 }
 
 message Product {
@@ -80,4 +104,50 @@ message PaymentResponse {
     bool success = 1;
     string transaction_id = 2;
     string message = 3;
+}
+
+// =====================================================
+// ORDER SERVICE
+// =====================================================
+
+service OrderService {
+    rpc CreateOrder(CreateOrderRequest) returns (Order);
+    rpc GetOrder(GetOrderRequest) returns (Order);
+    rpc UpdateOrder(UpdateOrderRequest) returns (Order);
+    rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
+}
+
+message CreateOrderRequest {
+    string order_id = 1;
+    string customer_id = 2;
+    string product_id = 3;
+    int32 quantity = 4;
+}
+
+message GetOrderRequest {
+    string order_id = 1;
+}
+
+message UpdateOrderRequest {
+    string order_id = 1;
+    string customer_id = 2;
+    string product_id = 3;
+    int32 quantity = 4;
+}
+
+message DeleteOrderRequest {
+    string order_id = 1;
+}
+
+message DeleteOrderResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message Order {
+    string order_id = 1;
+    string customer_id = 2;
+    string product_id = 3;
+    int32 quantity = 4;
+    double total_price = 5;
 }

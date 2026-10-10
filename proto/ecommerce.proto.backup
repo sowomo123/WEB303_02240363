@@ -1,0 +1,64 @@
+python3 - <<'PY'
+from pathlib import Path
+
+p = Path("proto/ecommerce.proto")
+text = p.read_text()
+
+old = '''service ProductService {
+    rpc GetProduct(GetProductRequest) returns (Product);
+}
+
+message GetProductRequest {
+    string product_id = 1;
+}
+
+message Product {
+    string product_id = 1;
+    string name = 2;
+    double price = 3;
+}'''
+
+new = '''service ProductService {
+    rpc CreateProduct(CreateProductRequest) returns (Product);
+    rpc GetProduct(GetProductRequest) returns (Product);
+    rpc UpdateProduct(UpdateProductRequest) returns (Product);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+}
+
+message CreateProductRequest {
+    string product_id = 1;
+    string name = 2;
+    double price = 3;
+}
+
+message GetProductRequest {
+    string product_id = 1;
+}
+
+message UpdateProductRequest {
+    string product_id = 1;
+    string name = 2;
+    double price = 3;
+}
+
+message DeleteProductRequest {
+    string product_id = 1;
+}
+
+message DeleteProductResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message Product {
+    string product_id = 1;
+    string name = 2;
+    double price = 3;
+}'''
+
+if old not in text:
+    raise SystemExit("ERROR: expected Product section was not found; file was not changed.")
+
+p.write_text(text.replace(old, new, 1))
+print("Product section updated successfully.")
+PY

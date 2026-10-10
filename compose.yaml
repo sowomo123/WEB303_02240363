@@ -1,0 +1,38 @@
+services:
+  product-db:
+    image: postgres:16-alpine
+    container_name: ecommerce-product-db
+    environment:
+      POSTGRES_USER: ${PRODUCT_DB_USER:-product_user}
+      POSTGRES_PASSWORD: ${PRODUCT_DB_PASSWORD:-change_this_product_password}
+      POSTGRES_DB: ${PRODUCT_DB_NAME:-products_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER:-product_user} -d ${PRODUCT_DB_NAME:-products_db}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  order-db:
+    image: postgres:16-alpine
+    container_name: ecommerce-order-db
+    environment:
+      POSTGRES_USER: ${ORDER_DB_USER:-order_user}
+      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD:-change_this_order_password}
+      POSTGRES_DB: ${ORDER_DB_NAME:-orders_db}
+    ports:
+      - "5434:5432"
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER:-order_user} -d ${ORDER_DB_NAME:-orders_db}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  product-db-data:
+  order-db-data:

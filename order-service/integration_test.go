@@ -353,3 +353,40 @@ func TestIntegration_ProductServiceTimeout(t *testing.T) {
 		elapsed,
 	)
 }
+// ============================================================
+// TEST C7: Circuit Breaker
+// ============================================================
+
+func TestIntegration_CircuitBreaker(t *testing.T) {
+
+        breaker := &circuitBreaker{}
+
+        // Record three failures to open the circuit.
+        breaker.recordFailure()
+        breaker.recordFailure()
+        breaker.recordFailure()
+
+        if breaker.allow() {
+                t.Fatal("expected circuit breaker to be open")
+        }
+
+        t.Log("Circuit breaker opened successfully after 3 failures")
+
+        // Wait for the circuit to become half-open.
+        time.Sleep(openDuration + 100*time.Millisecond)
+
+        if !breaker.allow() {
+                t.Fatal("expected circuit breaker to allow a trial request")
+        }
+
+        t.Log("Circuit breaker entered half-open state successfully")
+
+        // Successful request should close/reset the circuit.
+        breaker.recordSuccess()
+
+        if !breaker.allow() {
+                t.Fatal("expected circuit breaker to be closed after success")
+        }
+
+        t.Log("Circuit breaker closed successfully after successful request")
+}

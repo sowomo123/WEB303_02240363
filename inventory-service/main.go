@@ -1,14 +1,13 @@
 package main
 
 import (
-	"context"
-	"log"
-	"net"
+    "context"
+    "log"
+    "net"
 
-	pb "ecommerce-microservices/proto"
+    pb "ecommerce-microservices/proto"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+    "google.golang.org/grpc"
 )
 
 type inventoryServer struct {
