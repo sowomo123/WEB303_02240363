@@ -129,7 +129,7 @@ func main() {
 	// Serve static files
 	http.Handle(
 		"/",
-		http.FileServer(http.Dir(".")),
+		http.FileServer(http.Dir("frontend")),
 	)
 
 	// Product API

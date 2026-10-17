@@ -103,3 +103,28 @@ docker compose down -v
 ## API testing
 
 The services expose gRPC APIs defined in `proto/ecommerce.proto` and `proto/inventory.proto`. Use Postman, `grpcurl`, or another gRPC client to test the endpoints. Export the Postman collection into the repository when available, for example under `postman/`.
+
+## Cypress end-to-end tests
+
+The frontend/product gateway has 10 Cypress end-to-end tests. The tests stub the
+gateway response, so PostgreSQL and the product gRPC service do not need to be
+running while testing the browser behavior.
+
+Install the JavaScript dependencies and start the frontend first:
+
+```bash
+npm install
+go run ./frontend
+```
+
+Run the tests headlessly:
+
+```bash
+npm run cy:run
+```
+
+Use the interactive Cypress runner with:
+
+```bash
+npm run cy:open
+```

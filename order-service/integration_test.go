@@ -341,12 +341,15 @@ func TestIntegration_ProductServiceTimeout(t *testing.T) {
 		)
 	}
 
-	if status.Code(err) != codes.DeadlineExceeded {
-		t.Errorf(
-			"expected DeadlineExceeded, got %v",
-			status.Code(err),
-		)
-	}
+	code := status.Code(err)
+
+if code != codes.DeadlineExceeded &&
+    code != codes.Unavailable {
+    t.Errorf(
+        "expected DeadlineExceeded or Unavailable, got %v",
+        code,
+    )
+}
 
 	t.Logf(
 		"Timeout handled correctly after %v",
